@@ -11,8 +11,17 @@ I looked at trying to write up a templating script in Python, but that got annoy
 ## JSON constructors
 So you want to make an html element. What is the minimum about of characters it would take to make it. I started thinking about may libraries I had used before that took in a JS object as part of its constructor. And default parameters would be nice. So this was the beginning, a Component:
 
-```javascript
-function Component(in_opts)[[
+```html
+< tag key_0="value_0" key_1="value_1" ...> text 
+    <child_tag ...> </child_tag>
+</tag>
+```
 
+
+```javascript
+function Component(in_opts){
+    var defaults = {
+        'tag': 
+    };
 }
 ```
