@@ -92,15 +92,15 @@ Here is an HTML document that can accomplish the same thing:
 </html>
 ```
 
-What did we gain? Well, a few more lines of code. But recall the Zen of pubsub: we aren't claiming that simple things are made simpler, but that more complex things are made simpler. So let's do something slightly more complex. Let's having dueling buttons.
+What did we gain? Well, a few more lines of code. But recall the Zen of pubsub: that more complex things can be made made simpler. So let's do something slightly more complex. Let's having dueling buttons.
 
 ## Dueling buttons
-Let's have two buttons, side by sides that vie for your attention. Both buttons will say "Click me!", but if one is clicked this other with increase boldness and plead "No! Click me!", when that it clicked, then the other will display that message, and so on. 
+Let's have two buttons, side by sides that vie for your attention. Both buttons will say "Click me!", but if one is clicked this other with increase boldness and plead "No! Click me!". The buttons will flip between those states depending on which one was last clicked. 
 
 ```javascript
-
 var app = (function(my){
     my.init = function(){
+    	var root = new Component();
         var 
             b1 = new Component({'tag': 'button', _: 'Click me!'})
             ,b2 = new Component({'tag': 'button', _: 'Click me!'});
@@ -125,12 +125,13 @@ var app = (function(my){
                 this.node.style.cssText = 'font-weight: '+((b==2) ? 'normal;' : 'bold');
             }
         });
+	root.add([b1, b2]);
     }
     return my;
 })(app || {});
 ```
 
-Here's one improvement we could make. The code between the buttons is so similar that we could do something like this:
+Here's one improvement we could make. Notice that she code of the two buttons is so similar that we could do something like this:
 
 ```javascript
 var app = (function(my){
