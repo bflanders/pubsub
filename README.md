@@ -221,4 +221,105 @@ div.add(table);
 ## Other useful Component methods
 We already seen two methods of the Component class, `add` and `add_child`, but now I want to introduce a very important one: `subscribe`. This is getting to the heart of the pub/sub idea. 
 
-The `subscibe` method does two things: it defines callbacks (or "reactions") for messages it receives and it tells the `messenger` object to register this Component as interested in receiving data. We will be using a JS object to represent ...
+The `subscibe` method does two things: it defines callbacks (or "reactions") for messages it receives and it tells the `messenger` object to register this Component as interested in receiving data. We will be using a JS object called `reactions` to store topic and callbacks:
+
+```javascript
+Component.prototype.subscribe = function(reactions){
+    // Register reaction functions to topics
+    // reactions = { topic: function }
+    var self = this;
+    var reaction = 0;
+    for (var topic in reactions){
+        if (reactions.hasOwnProperty(topic)){
+            reaction = reactions[topic].bind(self);
+            self.messenger.register(topic, self);
+            self.reactions[topic] = reaction;
+        }
+    }
+    return self; // chaining
+}
+```
+
+Notice that this is one of the few times that are making of the `messenger` object. Also, notice that each callback is automatically "binded" to the Component object. This means we can write all the callback functions using `this` and it will resolve to the right Component.
+
+The next two methods are closely related: `send` and `receive`. The `receive` method makes use of the `reactions` attribute of the Component. The `send` method is the other time that the Component is asking the `messenger` to do something. 
+
+```javascript
+Component.prototype.receive = function(topic, data) {
+    // app.publish() -> forEach substriber, subscriber.react()
+    var self = this;
+    if (self.reactions.hasOwnProperty(topic)){
+        // Pass the data to the reaction function that is mapped to the topic
+        self.reactions[topic](data);  
+    }
+}
+
+Component.prototype.send = function(topic, data){
+    // Push topic to app. Subscribers are notified of topic.
+    this.messenger.publish(topic, data);
+}
+```
+
+The last method is the `on` method. It is used to register user events such as click and hovering. Most of the time the `on` is the place in the code where Components generate their messages. Again we are using a JS object where the key must be a valid DOM event. 
+
+```javascript
+Component.prototype.on = function(event_handlers){
+    // event_handles = { event: callback }
+
+    var self = this;
+    var handler = 0;
+    for (var e in event_handlers){
+        if (event_handlers.hasOwnProperty(e)){
+            handler = event_handlers[e].bind(self);   
+            self.node.addEventListener(e, handler);
+        } 
+    }
+    return self;
+}
+```
+
+## The messenger
+The last piece to discuss is the `messenger`. The purpose of the `messenger` is to manage the message bus (pushing and publishing messages) and to allow Component to register interest in topics. 
+
+```javascript
+var messenger = (function (){
+    my = {};
+    my.bus = [];
+    my.subscribers = {} // { topic: component }
+    // Subscribers register for interest
+    my.register = function(topic, comp){
+        if (my.subscribers.hasOwnProperty(topic)){
+            my.subscribers[topic].push(comp);
+        } else {
+            my.subscribers[topic] = [comp];
+        }
+    }
+    // Publish topics to all registered subscribers.
+    my.publish = function(topic, data){
+        // topic can be singular or plural (an Array)
+        function Msg(topic, data){  // little helper class
+            this[topic] = data;
+        }
+        if (topic instanceof Array){
+            for (var i=0; i<topic.length; i++){
+                my.bus.push(new Msg(topic[i], data)); 
+            }
+        } else{
+            my.bus.push(new Msg(topic, data));
+        }
+        
+        while (my.bus.length){
+            var msg = my.bus.pop()
+            var msg_has_topic = msg.hasOwnProperty(topic);
+            var sub_has_topic = my.subscribers.hasOwnProperty(topic);
+            if (msg_has_topic && sub_has_topic){
+                my.subscribers[topic].forEach(function(comp,i){
+                    comp.receive(topic, msg[topic]);
+                });
+            }
+        }
+    }
+   return my
+}());
+```
+
