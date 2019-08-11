@@ -70,3 +70,90 @@ var app = (function(my){
 })(app || {});
 ```
 
+## So what?
+Here is an HTML document that can accomplish the same thing:
+
+```html
+<!DOCTYPE html>
+<html lang="en-US">
+	<head>
+		<title>Hello, World</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</head>
+	<body>
+		<button id="button_id">Click me!</button>
+		<script>
+        document.getElementById('button_id').addEventListener('click', function(){ 
+			alert('Hello, World!');
+		});
+		</script>
+    </body>
+</html>
+```
+
+What did we gain? Well, a few more lines of code. But recall the Zen of pubsub: we aren't claiming that simple things are made simpler, but that more complex things are made simpler. So let's do something slightly more complex. Let's having dueling buttons.
+
+## Dueling buttons
+Let's have two buttons, side by sides that vie for your attention. Both buttons will say "Click me!", but if one is clicked this other with increase boldness and plead "No! Click me!", when that it clicked, then the other will display that message, and so on. 
+
+```javascript
+
+var app = (function(my){
+    my.init = function(){
+        var 
+            b1 = new Component({'tag': 'button', _: 'Click me!'})
+            ,b2 = new Component({'tag': 'button', _: 'Click me!'});
+        // Button 1
+        b1.on({ 'click': function(){ 
+            this.send('button clicked', 1); 
+        }});
+        b1.subscribe({
+            'button clicked': function(b){
+                this.node.textContent = (b==1) ? 'Click me' : 'No, click me!';
+                this.node.style.cssText = 'font-weight: '+((b==1) ? 'normal;' : 'bold');
+            }
+        });
+        
+        // Button 2
+        b2.on({ 'click': function(){ 
+            this.send('button clicked', 2); 
+        }});
+        b2.subscribe({
+            'button clicked': function(b){
+                this.node.textContent = (b==2) ? 'Click me' : 'No, click me!';
+                this.node.style.cssText = 'font-weight: '+((b==2) ? 'normal;' : 'bold');
+            }
+        });
+    }
+    return my;
+})(app || {});
+```
+
+Here's one improvement we could make. The code between the buttons is so similar that we could do something like this:
+
+```javascript
+var app = (function(my){
+    my.init = function(){
+        var root = new Component();
+        root.add([Button(1), Button(2), Button(3)]); // vying triplets!
+    }
+    // Private function
+    function Button(number){
+        var b = new Component({'tag': 'button', _: 'Click me!'});
+         b.on({ 'click': function(){ 
+            this.send('button clicked', number); 
+        }});
+        b.subscribe({
+            'button clicked': function(b){
+                this.node.textContent = (b==number) ? 'Click me' : 'No, click me!';
+                this.node.style.cssText = 'font-weight: '+((b==number) ? 'normal;' : 'bold');
+            }
+        });
+        return b
+    }
+    return my;
+})(app || {});
+```
+
+Did you notice the extra button we got for almost free! So we reduced our code by specifying `Button` class of sorts. This is the first layer of abstraction: the customization of Components. The `Button` is a reusable piece of code anywhere in this script.  
