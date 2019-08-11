@@ -35,5 +35,5 @@ I wanted layout some initial ideas thought that will dictate should govern how y
 
 That's pretty much it. There is a lot of small, but powerful things going on like closure and function binding. 
 
-**[Click here]**(https://github.com/bflanders/pubsub/blob/master/docs/component.md) to see a discussion about the Component class and later I'll talk about how to use the framework.
+**[Click here](https://github.com/bflanders/pubsub/blob/master/docs/component.md)** to see a discussion about the Component class and later I'll talk about how to use the framework.
 
