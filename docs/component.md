@@ -1,3 +1,12 @@
+# The Component Class
+
+This docs introduces the Component class a little bit at a time. It was intended to be read top to bottom, but here are links to the main sections. 
+
+* [Constructor object](#js-object-constructor)
+* [Adding children](#adding-children)
+* [Setting DOM attributes](#setting-dom-attributes)
+* [Other Methods](#other-useful-component-methods)
+
 ## JS object constructors
 So you want to make an html element. What is the minimum about of characters it would take to make it. I started thinking about may libraries I had used before that took in a JS object as part of its constructor. And default parameters would be nice. So here's what we are dealing with in HTML:
 
