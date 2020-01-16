@@ -8,7 +8,7 @@ This docs introduces the Component class a little bit at a time. It was intended
 * [Other Methods](#other-useful-component-methods)
 
 ## JS object constructors
-So you want to make an html element. What is the minimum about of characters it would take to make it. I started thinking about may libraries I had used before that took in a JS object as part of its constructor. And default parameters would be nice. So here's what we are dealing with in HTML:
+So you want to make an html element. What is the minimum about of characters it would take to make it? Here's the template of a typical html element where each term is more like a variable:
 
 ```html
 < tag key_0="value_0" key_1="value_1" ...> text 
@@ -16,7 +16,7 @@ So you want to make an html element. What is the minimum about of characters it 
 </tag>
 ```
 
-Each of the above text are place holder for real values. Like this
+Here's what a real html element would look like:
 
 ```html
 <div class="cool active" style="width: 100%;">
@@ -24,7 +24,7 @@ Each of the above text are place holder for real values. Like this
 </div>
 ```
 
-So how can we "translate" this structure to a JS object? I am going to wrap all attributes in a child JS object called `kv`, which stands for "key-value".
+So how can we "translate" this structure to a JS object? Here's a template for a JS object that encodes the structure of an html element
 
 ```javascript
 {
@@ -58,8 +58,8 @@ function Component(in_opts){
         ,'par': document.body // what should we add the Component to?
     };
     var self = this; // habit...
-    # overwrite defaults with passed in values
-    var opts = Object.assign(defaults, in_opts); # Won't work in IE9 
+    // overwrite defaults with passed in values
+    var opts = Object.assign(defaults, in_opts); // Won't work in IE9 
     self.node = document.createElement(opts.tag);
     self.node.textContent = opts._;
     // Append child before you can change attributes
@@ -72,6 +72,8 @@ function Component(in_opts){
 // Usage
 var div = Component() // div in the body
 ```
+
+This will create the html element in the DOM, but as is, it only attaches elemenets to the DOM body, it won't let you set the attributes for elements, and there's no way to add children. So we need to add more code to the constructor.
 
 ## Adding Children
 In order to replicate the DOM structure, we need to have Components that can be added to other Components. So we need to expand the Component constructor and add a method `add_child`.
